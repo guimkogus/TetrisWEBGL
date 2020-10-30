@@ -1,0 +1,10 @@
+tetris, snake, riveraid, pong, space invaders
+
+GRUPO 1 : Snake 
+- Artur
+- Nicolas
+- Matheus
+
+GRUPO 2 : Tetris
+- Guilherme
+- Alexandre
