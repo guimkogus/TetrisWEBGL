@@ -27,8 +27,6 @@ let canvas,         // área de desenho
     modelUniform,
     view,
     viewUniform,
-    positionX = 0,
-    positionY = 0,
     dir = 0;
 
 
@@ -83,12 +81,12 @@ async function main(evt){
     // 8.1 - Model
     modelUniform = gl.getUniformLocation(shaderProgram, "model");
     
-    model = mat4.fromTranslation([],[0,0,0]);
+    model = mat4.fromTranslation([],[0,0,-30]);
     
     gl.uniformMatrix4fv(modelUniform, false, new Float32Array(model));
 
     // 8.2 - View
-    view = mat4.lookAt([], [-2.5, 3 , 10], [0.0, 0.0, 0.0], [0,-1,0]);
+    view = mat4.lookAt([], [0, 0, 10], [0.0, 0.0, 0.0], [0,-1,0]);
     viewUniform = gl.getUniformLocation(shaderProgram, "view");
     gl.uniformMatrix4fv(viewUniform, false, new Float32Array(view));
 
@@ -298,28 +296,19 @@ function moverCamera(evt){
     let dy = y * DES;
 
     if(view){
-        view = mat4.lookAt([], [dx, dy , 10], [0.0, 0.0, 0.0], [0,-1,0]);
+        view = mat4.lookAt([], [dx, dy, 10], [0.0, 0.0, 0.0], [0,-1,0]);
         gl.uniformMatrix4fv(viewUniform, false, new Float32Array(view));
     }
 }
 
-function moverModelo(evt){
-    //let dx = 0;
-    //let dy = 0;
-    //positionX = 0;
-    //positionZ = 0;
-
-    //if(evt.key === "w") positionY = -1;
-    //if(evt.key === "s") positionY = 1;
-    if(evt.key === "a") positionX = 2;
-    if(evt.key === "d") positionX = -2;
-
-    //if(evt.key === "ArrowDown") dx = Math.PI * 0.1;
-    //if(evt.key === "ArrowUp") dx = Math.PI * -0.1;
-    //if(evt.key === "ArrowRight") dy = Math.PI * 0.1;
-    //if(evt.key === "ArrowLeft") dy = Math.PI * -0.1;
+function moverModelo(evt){    
+    if(model[12] > 0 && evt.key === "d") {
+        model = mat4.translate([], model, [-2, 0, 0]);    
+    }
     
-    //model = mat4.rotateY([], model, dy);
-    //model = mat4.rotateX([], model, dx);
-    model = mat4.translate([], model, [positionX, 0, 0]);
+    if(model[12] < 20 && evt.key === "a") {
+        model = mat4.translate([], model, [2, 0, 0]);
+    }
+
+    console.log('model[12] >>', model[12]);
 }
