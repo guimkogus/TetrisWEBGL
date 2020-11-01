@@ -1,7 +1,7 @@
 window.addEventListener("load", main);
 window.addEventListener("resize", resize);
-window.addEventListener("mousemove", mover);
-window.addEventListener("keydown", andar);
+window.addEventListener("mousemove", moverCamera);
+window.addEventListener("keydown", moverModelo);
 
 // VARIÁVEIS GLOBAIS
 let canvas,         // área de desenho
@@ -24,12 +24,11 @@ let canvas,         // área de desenho
     projection,
     projectionUniform,
     model,
-    model2,
     modelUniform,
     view,
     viewUniform,
-    px = 0,
-    pz = 0,
+    positionX = 0,
+    positionY = 0,
     dir = 0;
 
 
@@ -84,8 +83,7 @@ async function main(evt){
     // 8.1 - Model
     modelUniform = gl.getUniformLocation(shaderProgram, "model");
     
-    model = mat4.fromTranslation([],[1,-3,0]);
-    model2 = mat4.fromTranslation([],[0,0,0]);
+    model = mat4.fromTranslation([],[0,0,0]);
     
     gl.uniformMatrix4fv(modelUniform, false, new Float32Array(model));
 
@@ -116,8 +114,6 @@ function render(){
     // 9.3 - Desenhar
     // POINTS, LINES, LINE_STRIP, TRIANGLES 
     gl.uniformMatrix4fv(modelUniform, false, new Float32Array(model));
-    gl.drawArrays(gl.TRIANGLES, 0, data.points.length / 3);
-    gl.uniformMatrix4fv(modelUniform, false, new Float32Array(model2));
     gl.drawArrays(gl.TRIANGLES, 0, data.points.length / 3);
 
     // 9.4 - Encerrar frame de desenho
@@ -226,11 +222,11 @@ function getData(){
     };
 
     // Esfera
-    let e = new Esfera(4);
-    modelo = {
-        "points": new Float32Array(e.mesh),
-        "normais": new Float32Array(e.mesh)
-    };
+    //let e = new Esfera(4);
+    //modelo = {
+      //  "points": new Float32Array(e.mesh),
+     //   "normais": new Float32Array(e.mesh)
+    //};
     
     return modelo;
 }
@@ -292,8 +288,8 @@ function resize(){
     }
 }
 
-function mover(evt){
-    const DES = 13;
+function moverCamera(evt){
+    const DES = 3;
     /// -1 < x < 1
     let x = (evt.x / window.innerWidth)*2 - 1;
     let y = (evt.y / window.innerHeight)*-2 + 1;
@@ -307,23 +303,23 @@ function mover(evt){
     }
 }
 
-function andar(evt){
-    let dx = 0;
-    let dy = 0;
-    pz = 0;
-    px = 0;
+function moverModelo(evt){
+    //let dx = 0;
+    //let dy = 0;
+    //positionX = 0;
+    //positionZ = 0;
 
-    if(evt.key === "w") pz = -1;
-    if(evt.key === "s") pz = 1;
-    if(evt.key === "a") px = 1;
-    if(evt.key === "d") px = -1;
+    //if(evt.key === "w") positionY = -1;
+    //if(evt.key === "s") positionY = 1;
+    if(evt.key === "a") positionX = 2;
+    if(evt.key === "d") positionX = -2;
 
-    if(evt.key === "ArrowDown") dx = Math.PI * 0.1;
-    if(evt.key === "ArrowUp") dx = Math.PI * -0.1;
-    if(evt.key === "ArrowRight") dy = Math.PI * 0.1;
-    if(evt.key === "ArrowLeft") dy = Math.PI * -0.1;
+    //if(evt.key === "ArrowDown") dx = Math.PI * 0.1;
+    //if(evt.key === "ArrowUp") dx = Math.PI * -0.1;
+    //if(evt.key === "ArrowRight") dy = Math.PI * 0.1;
+    //if(evt.key === "ArrowLeft") dy = Math.PI * -0.1;
     
-    model2 = mat4.rotateY([], model2, dy);
-    model2 = mat4.rotateX([], model2, dx);
-    model2 = mat4.translate([], model2, [px,0,pz]);
+    //model = mat4.rotateY([], model, dy);
+    //model = mat4.rotateX([], model, dx);
+    model = mat4.translate([], model, [positionX, 0, 0]);
 }
