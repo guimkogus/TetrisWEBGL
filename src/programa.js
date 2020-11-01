@@ -2,6 +2,7 @@ window.addEventListener("load", main);
 window.addEventListener("resize", resize);
 window.addEventListener("mousemove", moverCamera);
 window.addEventListener("keydown", moverModelo);
+window.addEventListener("load", gravidade);
 
 // VARIÁVEIS GLOBAIS
 let canvas,         // área de desenho
@@ -81,7 +82,7 @@ async function main(evt){
     // 8.1 - Model
     modelUniform = gl.getUniformLocation(shaderProgram, "model");
     
-    model = mat4.fromTranslation([],[0,0,-30]);
+    model = mat4.fromTranslation([],[0,-20,-40]);
     
     gl.uniformMatrix4fv(modelUniform, false, new Float32Array(model));
 
@@ -311,4 +312,12 @@ function moverModelo(evt){
     }
 
     console.log('model[12] >>', model[12]);
+}
+
+function gravidade() {
+    setInterval(() => {
+        if(model[13] < 20) {
+            model = mat4.translate([], model, [0, 2, 0]);
+        }
+    }, 1000)
 }
