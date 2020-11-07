@@ -2,7 +2,6 @@ window.addEventListener("load", main);
 window.addEventListener("resize", resize);
 window.addEventListener("mousemove", moverCamera);
 window.addEventListener("keydown", moverModelo);
-window.addEventListener("load", gravidade);
 
 // VARIÁVEIS GLOBAIS
 let canvas,         // área de desenho
@@ -28,6 +27,10 @@ let canvas,         // área de desenho
     modelUniform,
     view,
     viewUniform,
+    modelsList,
+    piece = 0,
+    positionX = 0,
+    positionY = 0,
     dir = 0;
 
 
@@ -83,8 +86,10 @@ async function main(evt){
     modelUniform = gl.getUniformLocation(shaderProgram, "model");
     
     model = mat4.fromTranslation([],[0,-20,-40]);
+    model2 = mat4.fromTranslation([],[0,-20,-40]);
+    modelsList = [model, model2]
     
-    gl.uniformMatrix4fv(modelUniform, false, new Float32Array(model));
+    gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList[piece]));
 
     // 8.2 - View
     view = mat4.lookAt([], [0, 0, 10], [0.0, 0.0, 0.0], [0,-1,0]);
@@ -103,7 +108,7 @@ async function main(evt){
     render();
 }
 
-function render(){
+function render () {
     // 9.1 - Atualizar dados
     gl.uniform1f(frameUniform, frame);
 
@@ -112,11 +117,14 @@ function render(){
 
     // 9.3 - Desenhar
     // POINTS, LINES, LINE_STRIP, TRIANGLES 
-    gl.uniformMatrix4fv(modelUniform, false, new Float32Array(model));
-    gl.drawArrays(gl.TRIANGLES, 0, data.points.length / 3);
+    for(let i = 0; i <= piece; i++){
+        gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList[i]));
+        gl.drawArrays(gl.TRIANGLES, 0, data.points.length / 3);
+    }
 
     // 9.4 - Encerrar frame de desenho
     frame++;
+    gravidade();
     requestAnimationFrame(render);
 }
 
@@ -303,21 +311,30 @@ function moverCamera(evt){
 }
 
 function moverModelo(evt){    
-    if(model[12] > 0 && evt.key === "d") {
-        model = mat4.translate([], model, [-2, 0, 0]);    
+    if ( positionX > 0 && evt.key === "d" ) {
+        positionX -= 2;
+        modelsList[piece] = mat4.translate([], modelsList[piece], [-2, 0, 0]);    
     }
     
-    if(model[12] < 20 && evt.key === "a") {
-        model = mat4.translate([], model, [2, 0, 0]);
+    if ( positionX < 20 && evt.key === "a" ) {
+        positionX += 2;
+        modelsList[piece] = mat4.translate([], modelsList[piece], [2, 0, 0]);
     }
 
-    console.log('model[12] >>', model[12]);
+    //console.log('modelsList[piece][12] >>', modelsList[piece][12]);
 }
 
-function gravidade() {
-    setInterval(() => {
-        if(model[13] < 20) {
-            model = mat4.translate([], model, [0, 2, 0]);
-        }
-    }, 1000)
+function gravidade() {  
+    if(frame % 60 === 0 && positionY < 40 ) {
+        modelsList[piece] = mat4.translate([], modelsList[piece], [0, 2, 0]);
+        positionY += 2;
+        console.log('positionY >>>>>>>>>>>>> ', positionY);
+    }
+
+    if(positionY === 40) {
+        positionY = 0;
+        positionX = 0;
+        piece++;
+        console.log('PIECE >>>>>>>>>>>>> ', piece);
+    }
 }
