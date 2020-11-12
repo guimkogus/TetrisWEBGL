@@ -24,6 +24,9 @@ let canvas,         // área de desenho
     projection,
     projectionUniform,
     model,
+    model2,
+    model3,
+    model4,
     modelUniform,
     view,
     viewUniform,
@@ -85,9 +88,8 @@ async function main(evt){
     // 8.1 - Model
     modelUniform = gl.getUniformLocation(shaderProgram, "model");
     
-    model = mat4.fromTranslation([],[0,-20,-40]);
-    model2 = mat4.fromTranslation([],[0,-20,-40]);
-    modelsList = [model, model2]
+    novoModelo()
+    modelsList = []
     
     gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList[piece]));
 
@@ -335,6 +337,14 @@ function gravidade() {
         positionY = 0;
         positionX = 0;
         piece++;
+        novoModelo();
         console.log('PIECE >>>>>>>>>>>>> ', piece);
     }
+}
+
+function novoModelo() {
+    let newmodel;
+    newmodel = mat4.fromTranslation([],[0,-20,-40]);
+    modelsList[piece] = newmodel;
+
 }
