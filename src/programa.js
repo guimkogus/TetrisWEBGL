@@ -88,10 +88,14 @@ async function main(evt){
     // 8.1 - Model
     modelUniform = gl.getUniformLocation(shaderProgram, "model");
     
-    novoModelo()
-    modelsList = []
+    model = mat4.fromTranslation([],[0,0,0]);
+    model2 = mat4.fromTranslation([],[2,0,0]);
+    model3 = mat4.fromTranslation([],[-2,0,0]);
+    model4 = mat4.fromTranslation([],[0,2,0]);
+    modelsList = [model]
     
     gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList[piece]));
+    
 
     // 8.2 - View
     view = mat4.lookAt([], [0, 0, 10], [0.0, 0.0, 0.0], [0,-1,0]);
@@ -171,19 +175,19 @@ function getData(){
         // 0: A - EQ TP FR
         [-1,-1,-1],
         // 1: B - DR TP FR
-        [1,-1,-1],
+        [0,-1,-1],
         // 2: C - DR BX FR
-        [1,1,-1],
+        [0,0,-1],
         // 3: D - EQ BX FR
-        [-1,1,-1],
+        [-1,0,-1],
         // 4: E - EQ TP TZ
-        [-1,-1,1],
+        [-1,-1,0],
         // 5: F - DR TP TZ
-        [1,-1,1],
+        [0,-1,0],
         // 6: G - EQ BX TZ
-        [-1,1,1],
+        [-1,0,0],
         // 7: H - DR BX TZ
-        [1,1,1]
+        [0,0,0]
     ];
 
     let points = [
@@ -344,7 +348,7 @@ function gravidade() {
 
 function novoModelo() {
     let newmodel;
-    newmodel = mat4.fromTranslation([],[0,-20,-40]);
+    newmodel = mat4.fromTranslation([],[0,0,0]);
     modelsList[piece] = newmodel;
 
 }
