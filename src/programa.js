@@ -28,6 +28,7 @@ let canvas,         // área de desenho
     model2,
     model3,
     model4,
+    modelmatrix,
     modelUniform,
     view,
     viewUniform,
@@ -94,10 +95,11 @@ async function main(evt){
     // 8.1 - Model
     modelUniform = gl.getUniformLocation(shaderProgram, "model");
     
+    modelmatrix = aleatorio();
     model = mat4.fromTranslation([],[0,0,0]);
-    model2 = mat4.fromTranslation([],[1,0,0]);
-    model3 = mat4.fromTranslation([],[-1,0,0]);
-    model4 = mat4.fromTranslation([],[0,-1,0]);
+    model2 = mat4.fromTranslation([],modelmatrix[0]);
+    model3 = mat4.fromTranslation([],modelmatrix[1]);
+    model4 = mat4.fromTranslation([],modelmatrix[2]);
     modelsList = [model];
     modelsList2 = [model2];
     modelsList3 = [model3];
@@ -433,7 +435,7 @@ let pos4 = [
 
 let listadepos = [pos1,pos2,pos3,pos4] 
 
-let indice = randomInt(0,(listadepos.length-1));
+let indice = randomInt(0,(listadepos.length));
 
 return listadepos[indice];
 }
