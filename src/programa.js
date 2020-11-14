@@ -3,6 +3,7 @@ window.addEventListener("resize", resize);
 window.addEventListener("mousemove", moverCamera);
 window.addEventListener("keydown", moverModelo);
 
+
 // VARIÁVEIS GLOBAIS
 let canvas,         // área de desenho
     gl,             // API do WebGL
@@ -31,10 +32,15 @@ let canvas,         // área de desenho
     view,
     viewUniform,
     modelsList,
+    modelsList2,
+    modelsList3,
+    modelsList4,
     piece = 0,
     positionX = 0,
     positionY = 0,
     dir = 0;
+    
+
 
 
 
@@ -89,12 +95,18 @@ async function main(evt){
     modelUniform = gl.getUniformLocation(shaderProgram, "model");
     
     model = mat4.fromTranslation([],[0,0,0]);
-    model2 = mat4.fromTranslation([],[2,0,0]);
-    model3 = mat4.fromTranslation([],[-2,0,0]);
-    model4 = mat4.fromTranslation([],[0,2,0]);
-    modelsList = [model]
+    model2 = mat4.fromTranslation([],[1,0,0]);
+    model3 = mat4.fromTranslation([],[-1,0,0]);
+    model4 = mat4.fromTranslation([],[0,-1,0]);
+    modelsList = [model];
+    modelsList2 = [model2];
+    modelsList3 = [model3];
+    modelsList4 = [model4];
     
     gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList[piece]));
+    gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList2[piece]));
+    gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList3[piece]));
+    gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList4[piece]));
     
 
     // 8.2 - View
@@ -125,6 +137,12 @@ function render () {
     // POINTS, LINES, LINE_STRIP, TRIANGLES 
     for(let i = 0; i <= piece; i++){
         gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList[i]));
+        gl.drawArrays(gl.TRIANGLES, 0, data.points.length / 3);
+        gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList2[i]));
+        gl.drawArrays(gl.TRIANGLES, 0, data.points.length / 3);
+        gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList3[i]));
+        gl.drawArrays(gl.TRIANGLES, 0, data.points.length / 3);
+        gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList4[i]));
         gl.drawArrays(gl.TRIANGLES, 0, data.points.length / 3);
     }
 
@@ -318,13 +336,21 @@ function moverCamera(evt){
 
 function moverModelo(evt){    
     if ( positionX > 0 && evt.key === "d" ) {
+        console.log('positionX >>>>>>>>>>>>> ', positionX);
         positionX -= 2;
-        modelsList[piece] = mat4.translate([], modelsList[piece], [-2, 0, 0]);    
+        modelsList[piece] = mat4.translate([], modelsList[piece], [-2, 0, 0]);
+        modelsList2[piece] = mat4.translate([], modelsList2[piece], [-2, 0, 0]);
+        modelsList3[piece] = mat4.translate([], modelsList3[piece], [-2, 0, 0]);
+        modelsList4[piece] = mat4.translate([], modelsList4[piece], [-2, 0, 0]);    
     }
     
     if ( positionX < 20 && evt.key === "a" ) {
+        console.log('positionX >>>>>>>>>>>>> ', positionX);
         positionX += 2;
         modelsList[piece] = mat4.translate([], modelsList[piece], [2, 0, 0]);
+        modelsList2[piece] = mat4.translate([], modelsList2[piece], [2, 0, 0]);
+        modelsList3[piece] = mat4.translate([], modelsList3[piece], [2, 0, 0]);
+        modelsList4[piece] = mat4.translate([], modelsList4[piece], [2, 0, 0]);
     }
 
     //console.log('modelsList[piece][12] >>', modelsList[piece][12]);
@@ -333,6 +359,9 @@ function moverModelo(evt){
 function gravidade() {  
     if(frame % 60 === 0 && positionY < 40 ) {
         modelsList[piece] = mat4.translate([], modelsList[piece], [0, 2, 0]);
+        modelsList2[piece] = mat4.translate([], modelsList2[piece], [0, 2, 0]);
+        modelsList3[piece] = mat4.translate([], modelsList3[piece], [0, 2, 0]);
+        modelsList4[piece] = mat4.translate([], modelsList4[piece], [0, 2, 0]);
         positionY += 2;
         console.log('positionY >>>>>>>>>>>>> ', positionY);
     }
@@ -347,8 +376,68 @@ function gravidade() {
 }
 
 function novoModelo() {
-    let newmodel;
-    newmodel = mat4.fromTranslation([],[0,0,0]);
-    modelsList[piece] = newmodel;
+    let newmodel,
+        newmodel2,
+        newmodel3,
+        newmodel4;
 
+    let matrizmodelo = aleatorio();
+    
+    let posicao2 = matrizmodelo[0];
+    let posicao3 = matrizmodelo[1]
+    let posicao4 = matrizmodelo[2]
+
+
+    newmodel = mat4.fromTranslation([],[0,0,0]);
+    newmodel2 = mat4.fromTranslation([],posicao2);
+    newmodel3 = mat4.fromTranslation([],posicao3);
+    newmodel4 = mat4.fromTranslation([],posicao4);
+
+    modelsList[piece] = newmodel;
+    modelsList2[piece] = newmodel2;
+    modelsList3[piece] = newmodel3;
+    modelsList4[piece] = newmodel4;
+
+}
+
+function aleatorio() {
+ //[1,0,0 ] [1,0,0] [0,1,0] [1,0,0]
+ //[-1,0,0] [1,1,0] [0,2,0] [1,1,0]
+ //[0,-1,0] [1,2,0] [0,3,0] [0,1,0]
+
+ 
+
+ let pos1 = [
+    [1,0,0],
+    [-1,0,0],
+    [0,-1,0],
+]
+
+let pos2 = [
+    [1,0,0],
+    [1,1,0],
+    [1,2,0],
+]
+
+let pos3 = [
+    [0,1,0],
+    [0,2,0],
+    [0,3,0],
+]
+
+let pos4 = [
+    [1,0,0],
+    [1,1,0],
+    [0,1,0],
+]
+
+let listadepos = [pos1,pos2,pos3,pos4] 
+
+let indice = randomInt(0,(listadepos.length-1));
+
+return listadepos[indice];
+}
+
+function randomInt(min, max) {
+	return min + Math.floor((max - min) * Math.random());
 }
