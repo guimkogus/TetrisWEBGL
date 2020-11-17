@@ -2,6 +2,7 @@ window.addEventListener("load", main);
 window.addEventListener("resize", resize);
 window.addEventListener("mousemove", moverCamera);
 window.addEventListener("keydown", moverModelo);
+window.addEventListener("keydown", rotacionar);
 
 
 // VARIÁVEIS GLOBAIS
@@ -339,36 +340,46 @@ function moverCamera(evt){
 function moverModelo(evt){    
     if ( positionX > 0 && evt.key === "d" ) {
         console.log('positionX >>>>>>>>>>>>> ', positionX);
-        positionX -= 2;
-        modelsList[piece] = mat4.translate([], modelsList[piece], [-2, 0, 0]);
-        modelsList2[piece] = mat4.translate([], modelsList2[piece], [-2, 0, 0]);
-        modelsList3[piece] = mat4.translate([], modelsList3[piece], [-2, 0, 0]);
-        modelsList4[piece] = mat4.translate([], modelsList4[piece], [-2, 0, 0]);    
+        positionX -= 1;
+        modelsList[piece] = mat4.translate([], modelsList[piece], [-1, 0, 0]);
+        modelsList2[piece] = mat4.translate([], modelsList2[piece], [-1, 0, 0]);
+        modelsList3[piece] = mat4.translate([], modelsList3[piece], [-1, 0, 0]);
+        modelsList4[piece] = mat4.translate([], modelsList4[piece], [-1, 0, 0]);    
     }
     
-    if ( positionX < 20 && evt.key === "a" ) {
+    if ( positionX < 10 && evt.key === "a" ) {
         console.log('positionX >>>>>>>>>>>>> ', positionX);
-        positionX += 2;
-        modelsList[piece] = mat4.translate([], modelsList[piece], [2, 0, 0]);
-        modelsList2[piece] = mat4.translate([], modelsList2[piece], [2, 0, 0]);
-        modelsList3[piece] = mat4.translate([], modelsList3[piece], [2, 0, 0]);
-        modelsList4[piece] = mat4.translate([], modelsList4[piece], [2, 0, 0]);
+        positionX += 1;
+        modelsList[piece] = mat4.translate([], modelsList[piece], [1, 0, 0]);
+        modelsList2[piece] = mat4.translate([], modelsList2[piece], [1, 0, 0]);
+        modelsList3[piece] = mat4.translate([], modelsList3[piece], [1, 0, 0]);
+        modelsList4[piece] = mat4.translate([], modelsList4[piece], [1, 0, 0]);
     }
 
     //console.log('modelsList[piece][12] >>', modelsList[piece][12]);
 }
 
+function rotacionar(evt){
+    if(evt.key === "q"){
+    modelsList[piece] = mat4.rotate([], modelsList[piece], [1, 0, 0]);
+    modelsList2[piece] = mat4.rotate([], modelsList2[piece], [1, 0, 0]);
+    modelsList3[piece] = mat4.rotate([], modelsList3[piece], [1, 0, 0]);
+    modelsList4[piece] = mat4.rotate([], modelsList4[piece], [1, 0, 0]);
+    console.log('rodou');
+    }
+}
+
 function gravidade() {  
-    if(frame % 60 === 0 && positionY < 40 ) {
-        modelsList[piece] = mat4.translate([], modelsList[piece], [0, 2, 0]);
-        modelsList2[piece] = mat4.translate([], modelsList2[piece], [0, 2, 0]);
-        modelsList3[piece] = mat4.translate([], modelsList3[piece], [0, 2, 0]);
-        modelsList4[piece] = mat4.translate([], modelsList4[piece], [0, 2, 0]);
-        positionY += 2;
+    if(frame % 60 === 0 && positionY < 20 ) {
+        modelsList[piece] = mat4.translate([], modelsList[piece], [0, 1, 0]);
+        modelsList2[piece] = mat4.translate([], modelsList2[piece], [0, 1, 0]);
+        modelsList3[piece] = mat4.translate([], modelsList3[piece], [0, 1, 0]);
+        modelsList4[piece] = mat4.translate([], modelsList4[piece], [0, 1, 0]);
+        positionY += 1;
         console.log('positionY >>>>>>>>>>>>> ', positionY);
     }
 
-    if(positionY === 40) {
+    if(positionY === 20) {
         positionY = 0;
         positionX = 0;
         piece++;
