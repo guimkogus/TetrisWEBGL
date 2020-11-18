@@ -113,7 +113,7 @@ async function main(evt){
     
 
     // 8.2 - View
-    view = mat4.lookAt([], [0, 0, 10], [0.0, 0.0, 0.0], [0,-1,0]);
+    view = mat4.lookAt([], [0, 0, 30], [5.0, 10.0, 0.0], [0,-1,0]);
     viewUniform = gl.getUniformLocation(shaderProgram, "view");
     gl.uniformMatrix4fv(viewUniform, false, new Float32Array(view));
 
@@ -332,7 +332,7 @@ function moverCamera(evt){
     let dy = y * DES;
 
     if(view){
-        view = mat4.lookAt([], [dx, dy, 10], [0.0, 0.0, 0.0], [0,-1,0]);
+        view = mat4.lookAt([], [dx, dy, 30], [5.0, 10.0, 0.0], [0,-1,0]);
         gl.uniformMatrix4fv(viewUniform, false, new Float32Array(view));
     }
 }
@@ -354,6 +354,14 @@ function moverModelo(evt){
         modelsList2[piece] = mat4.translate([], modelsList2[piece], [1, 0, 0]);
         modelsList3[piece] = mat4.translate([], modelsList3[piece], [1, 0, 0]);
         modelsList4[piece] = mat4.translate([], modelsList4[piece], [1, 0, 0]);
+    }
+
+    if (positionY < 20  && evt.key === "s") {
+        modelsList[piece] = mat4.translate([], modelsList[piece], [0, 1, 0]);
+        modelsList2[piece] = mat4.translate([], modelsList2[piece], [0, 1, 0]);
+        modelsList3[piece] = mat4.translate([], modelsList3[piece], [0, 1, 0]);
+        modelsList4[piece] = mat4.translate([], modelsList4[piece], [0, 1, 0]);
+        positionY += 1;
     }
 
     //console.log('modelsList[piece][12] >>', modelsList[piece][12]);
