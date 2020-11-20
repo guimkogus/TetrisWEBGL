@@ -2,7 +2,7 @@ window.addEventListener("load", main);
 window.addEventListener("resize", resize);
 window.addEventListener("mousemove", moverCamera);
 window.addEventListener("keydown", moverModelo);
-window.addEventListener("keydown", rotacionar);
+
 
 
 // VARIÁVEIS GLOBAIS
@@ -37,6 +37,7 @@ let canvas,         // área de desenho
     modelsList2,
     modelsList3,
     modelsList4,
+    ListOfModelsLists,
     piece = 0,
     positionX = 0,
     positionY = 0,
@@ -96,6 +97,9 @@ async function main(evt){
     // 8.1 - Model
     modelUniform = gl.getUniformLocation(shaderProgram, "model");
     
+    /*
+    model.models()
+    */
     modelmatrix = aleatorio();
     model = mat4.fromTranslation([],[0,0,0]);
     model2 = mat4.fromTranslation([],modelmatrix[0]);
@@ -105,11 +109,16 @@ async function main(evt){
     modelsList2 = [model2];
     modelsList3 = [model3];
     modelsList4 = [model4];
+    ListOfModelsLists = [modelsList,modelsList2,modelsList3,modelsList4];
     
-    gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList[piece]));
-    gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList2[piece]));
-    gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList3[piece]));
-    gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList4[piece]));
+    /*for(let i = 0; i < 4; i++){
+        gl.uniformMatrix4fv(modelUniform, false, new Float32Array(model.listaDeModels[i]));
+    }*/
+
+    for(let i = 0; i < 4; i++){
+        gl.uniformMatrix4fv(modelUniform, false, new Float32Array(ListOfModelsLists[i][piece]));
+    }
+
     
 
     // 8.2 - View
@@ -139,14 +148,10 @@ function render () {
     // 9.3 - Desenhar
     // POINTS, LINES, LINE_STRIP, TRIANGLES 
     for(let i = 0; i <= piece; i++){
-        gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList[i]));
+        for(let j = 0; j < 4; j++){
+        gl.uniformMatrix4fv(modelUniform, false, new Float32Array(ListOfModelsLists[j][i]));
         gl.drawArrays(gl.TRIANGLES, 0, data.points.length / 3);
-        gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList2[i]));
-        gl.drawArrays(gl.TRIANGLES, 0, data.points.length / 3);
-        gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList3[i]));
-        gl.drawArrays(gl.TRIANGLES, 0, data.points.length / 3);
-        gl.uniformMatrix4fv(modelUniform, false, new Float32Array(modelsList4[i]));
-        gl.drawArrays(gl.TRIANGLES, 0, data.points.length / 3);
+        }
     }
 
     // 9.4 - Encerrar frame de desenho
@@ -255,13 +260,6 @@ function getData(){
         "normais": new Float32Array(normais)
     };
 
-    // Esfera
-    //let e = new Esfera(4);
-    //modelo = {
-      //  "points": new Float32Array(e.mesh),
-     //   "normais": new Float32Array(e.mesh)
-    //};
-    
     return modelo;
 }
 
@@ -341,50 +339,37 @@ function moverModelo(evt){
     if ( positionX > 0 && evt.key === "d" ) {
         console.log('positionX >>>>>>>>>>>>> ', positionX);
         positionX -= 1;
-        modelsList[piece] = mat4.translate([], modelsList[piece], [-1, 0, 0]);
-        modelsList2[piece] = mat4.translate([], modelsList2[piece], [-1, 0, 0]);
-        modelsList3[piece] = mat4.translate([], modelsList3[piece], [-1, 0, 0]);
-        modelsList4[piece] = mat4.translate([], modelsList4[piece], [-1, 0, 0]);    
+        for(let i = 0; i < 4; i++){
+        ListOfModelsLists[i][piece] = mat4.translate([], ListOfModelsLists[i][piece], [-1, 0, 0]);
+        }  
     }
     
     if ( positionX < 10 && evt.key === "a" ) {
         console.log('positionX >>>>>>>>>>>>> ', positionX);
         positionX += 1;
-        modelsList[piece] = mat4.translate([], modelsList[piece], [1, 0, 0]);
-        modelsList2[piece] = mat4.translate([], modelsList2[piece], [1, 0, 0]);
-        modelsList3[piece] = mat4.translate([], modelsList3[piece], [1, 0, 0]);
-        modelsList4[piece] = mat4.translate([], modelsList4[piece], [1, 0, 0]);
+        for(let i = 0; i < 4; i++){
+        ListOfModelsLists[i][piece] = mat4.translate([], ListOfModelsLists[i][piece], [1, 0, 0]);
+        }
     }
 
     if (positionY < 20  && evt.key === "s") {
-        modelsList[piece] = mat4.translate([], modelsList[piece], [0, 1, 0]);
-        modelsList2[piece] = mat4.translate([], modelsList2[piece], [0, 1, 0]);
-        modelsList3[piece] = mat4.translate([], modelsList3[piece], [0, 1, 0]);
-        modelsList4[piece] = mat4.translate([], modelsList4[piece], [0, 1, 0]);
+        for(let i = 0; i < 4; i++){
+            ListOfModelsLists[i][piece] = mat4.translate([],  ListOfModelsLists[i][piece], [0, 1, 0]);
+        }
         positionY += 1;
     }
 
     //console.log('modelsList[piece][12] >>', modelsList[piece][12]);
 }
 
-function rotacionar(evt){
-    if(evt.key === "q"){
-    modelsList[piece] = mat4.rotate([], modelsList[piece], [1, 0, 0]);
-    modelsList2[piece] = mat4.rotate([], modelsList2[piece], [1, 0, 0]);
-    modelsList3[piece] = mat4.rotate([], modelsList3[piece], [1, 0, 0]);
-    modelsList4[piece] = mat4.rotate([], modelsList4[piece], [1, 0, 0]);
-    console.log('rodou');
-    }
-}
+
 
 function gravidade() {  
     if(frame % 60 === 0 && positionY < 20 ) {
-        modelsList[piece] = mat4.translate([], modelsList[piece], [0, 1, 0]);
-        modelsList2[piece] = mat4.translate([], modelsList2[piece], [0, 1, 0]);
-        modelsList3[piece] = mat4.translate([], modelsList3[piece], [0, 1, 0]);
-        modelsList4[piece] = mat4.translate([], modelsList4[piece], [0, 1, 0]);
-        positionY += 1;
-        console.log('positionY >>>>>>>>>>>>> ', positionY);
+        for(let i = 0; i < 4; i++){
+            ListOfModelsLists[i][piece] = mat4.translate([], ListOfModelsLists[i][piece], [0, 1, 0]);
+            }
+            positionY += 1;
     }
 
     if(positionY === 20) {
