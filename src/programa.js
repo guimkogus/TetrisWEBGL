@@ -41,13 +41,12 @@ let canvas,         // área de desenho
     piece = 0,
     positionX = 0,
     positionY = 0,
-    dir = 0;
-    
-
-
-
+    dir = 0,
+    tileMap = [];
 
 async function main(evt){
+    createMap();
+
     // 1 - Criar uma área de desenho
     canvas = createCanvas();
 
@@ -109,17 +108,15 @@ async function main(evt){
     modelsList2 = [model2];
     modelsList3 = [model3];
     modelsList4 = [model4];
-    ListOfModelsLists = [modelsList,modelsList2,modelsList3,modelsList4];
+    ListOfModelsLists = [modelsList, modelsList2, modelsList3, modelsList4];
     
     /*for(let i = 0; i < 4; i++){
         gl.uniformMatrix4fv(modelUniform, false, new Float32Array(model.listaDeModels[i]));
     }*/
 
-    for(let i = 0; i < 4; i++){
+    for (let i = 0; i < 4; i++) {
         gl.uniformMatrix4fv(modelUniform, false, new Float32Array(ListOfModelsLists[i][piece]));
     }
-
-    
 
     // 8.2 - View
     view = mat4.lookAt([], [0, 0, 30], [5.0, 10.0, 0.0], [0,-1,0]);
@@ -147,10 +144,10 @@ function render () {
 
     // 9.3 - Desenhar
     // POINTS, LINES, LINE_STRIP, TRIANGLES 
-    for(let i = 0; i <= piece; i++){
-        for(let j = 0; j < 4; j++){
-        gl.uniformMatrix4fv(modelUniform, false, new Float32Array(ListOfModelsLists[j][i]));
-        gl.drawArrays(gl.TRIANGLES, 0, data.points.length / 3);
+    for (let i = 0; i <= piece; i++) {
+        for(let j = 0; j < 4; j++) {
+            gl.uniformMatrix4fv(modelUniform, false, new Float32Array(ListOfModelsLists[j][i]));
+            gl.drawArrays(gl.TRIANGLES, 0, data.points.length / 3);
         }
     }
 
@@ -362,8 +359,6 @@ function moverModelo(evt){
     //console.log('modelsList[piece][12] >>', modelsList[piece][12]);
 }
 
-
-
 function gravidade() {  
     if(frame % 60 === 0 && positionY < 20 ) {
         for(let i = 0; i < 4; i++){
@@ -372,13 +367,51 @@ function gravidade() {
             positionY += 1;
     }
 
-    if(positionY === 20) {
+    if(checkCollision()) {
         positionY = 0;
         positionX = 0;
+
+        addToTileMap();
+
         piece++;
         novoModelo();
         console.log('PIECE >>>>>>>>>>>>> ', piece);
+
+
     }
+}
+
+function checkCollision() {
+    return positionY === 20;
+}
+
+function addToTileMap() {
+    const bloco1 = vec4.transformMat4([], [0, 0, 0, 1], modelsList[piece]);
+    const bloco2 = vec4.transformMat4([], [0, 0, 0, 1], modelsList2[piece]);
+    const bloco3 = vec4.transformMat4([], [0, 0, 0, 1], modelsList3[piece]);
+    const bloco4 = vec4.transformMat4([], [0, 0, 0, 1], modelsList4[piece]);
+
+    tileMap[bloco1[1]][bloco1[0]] = true;
+    tileMap[bloco2[1]][bloco2[0]] = true;
+    tileMap[bloco3[1]][bloco3[0]] = true;
+    tileMap[bloco4[1]][bloco4[0]] = true;
+    console.log(bloco1[0]);
+    console.log(bloco2[0]);
+    console.log(bloco3[0]);
+    console.log(bloco4[0]);
+
+    printTileMap();
+}
+
+function printTileMap() {    
+    let line = "";
+    for(let i = 0; i < tileMap.length; i++) {
+        for(let j = tileMap[i].length - 1; j >= 0 ; j--) {
+            line += tileMap[i][j] ? 1 : 0;
+        }
+        line += "\n";
+    }
+    console.log(line);
 }
 
 function novoModelo() {
@@ -403,6 +436,7 @@ function novoModelo() {
     modelsList2[piece] = newmodel2;
     modelsList3[piece] = newmodel3;
     modelsList4[piece] = newmodel4;
+
 
 }
 
@@ -446,4 +480,13 @@ return listadepos[indice];
 
 function randomInt(min, max) {
 	return min + Math.floor((max - min) * Math.random());
+}
+
+function createMap() {
+    for(let i = 0; i < 24; i++) {
+        tileMap[i] = [];
+        for(let j = 0; j < 15; j++) {
+            tileMap[i][j] = false;
+        }
+    }
 }
