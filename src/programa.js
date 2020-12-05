@@ -333,56 +333,102 @@ function moverCamera(evt){
 }
 
 function moverModelo(evt){    
-    if ( positionX > 0 && evt.key === "d" ) {
-        console.log('positionX >>>>>>>>>>>>> ', positionX);
+    if ( positionX > 0 && evt.key === "d" && didCollided() !== "Xdir" ) {
+        removeFromTileMap();
         positionX -= 1;
         for(let i = 0; i < 4; i++){
-        ListOfModelsLists[i][piece] = mat4.translate([], ListOfModelsLists[i][piece], [-1, 0, 0]);
-        }  
+            ListOfModelsLists[i][piece] = mat4.translate([], ListOfModelsLists[i][piece], [-1, 0, 0]);
+        }
+        addToTileMap();  
     }
     
-    if ( positionX < 10 && evt.key === "a" ) {
-        console.log('positionX >>>>>>>>>>>>> ', positionX);
+    if ( positionX < 10 && evt.key === "a" && didCollided() !== "Xesq" ) {
+        removeFromTileMap();
         positionX += 1;
         for(let i = 0; i < 4; i++){
-        ListOfModelsLists[i][piece] = mat4.translate([], ListOfModelsLists[i][piece], [1, 0, 0]);
+            ListOfModelsLists[i][piece] = mat4.translate([], ListOfModelsLists[i][piece], [1, 0, 0]);
         }
+        addToTileMap();
     }
 
-    if (positionY < 20  && evt.key === "s") {
+    if (positionY <= 20  && evt.key === "s" && didCollided() !== "Y" ) {
+        removeFromTileMap();
+        positionY += 1;
         for(let i = 0; i < 4; i++){
             ListOfModelsLists[i][piece] = mat4.translate([],  ListOfModelsLists[i][piece], [0, 1, 0]);
         }
-        positionY += 1;
+        addToTileMap();
     }
-
-    //console.log('modelsList[piece][12] >>', modelsList[piece][12]);
 }
 
 function gravidade() {  
-    if(frame % 60 === 0 && positionY < 20 ) {
-        for(let i = 0; i < 4; i++){
-            ListOfModelsLists[i][piece] = mat4.translate([], ListOfModelsLists[i][piece], [0, 1, 0]);
-            }
-            positionY += 1;
-    }
+    if(frame % 60 === 0 && didCollided() !== "Y" ) {
+        removeFromTileMap();
 
-    if(checkCollision()) {
-        positionY = 0;
-        positionX = 0;
+        for (let i = 0; i < 4; i++) {
+            ListOfModelsLists[i][piece] = mat4.translate([], ListOfModelsLists[i][piece], [0, 1, 0]);
+        }
 
         addToTileMap();
+        positionY += 1;
+    }
 
+    if(didCollided() === "Y") {
+        printTileMap();
+        positionY = 0;
+        positionX = 0;
         piece++;
         novoModelo();
-        console.log('PIECE >>>>>>>>>>>>> ', piece);
-
-
     }
 }
 
-function checkCollision() {
-    return positionY === 20;
+function didCollided() {
+    removeFromTileMap();
+
+    const bloco1 = vec4.transformMat4([], [0, 0, 0, 1], modelsList[piece]);
+    const bloco2 = vec4.transformMat4([], [0, 0, 0, 1], modelsList2[piece]);
+    const bloco3 = vec4.transformMat4([], [0, 0, 0, 1], modelsList3[piece]);
+    const bloco4 = vec4.transformMat4([], [0, 0, 0, 1], modelsList4[piece]);
+
+    const collisionY1 = tileMap[bloco1[1] + 1][bloco1[0]];
+    const collisionY2 = tileMap[bloco2[1] + 1][bloco2[0]];
+    const collisionY3 = tileMap[bloco3[1] + 1][bloco3[0]];
+    const collisionY4 = tileMap[bloco4[1] + 1][bloco4[0]];
+    const collisionY = collisionY1 || collisionY2 || collisionY3 || collisionY4;
+
+    const collisionX1 = tileMap[bloco1[1]][bloco1[0] + 1];
+    const collisionX2 = tileMap[bloco2[1]][bloco2[0] + 1];
+    const collisionX3 = tileMap[bloco3[1]][bloco3[0] + 1];
+    const collisionX4 = tileMap[bloco4[1]][bloco4[0] + 1];
+    const collisionXesq = collisionX1 || collisionX2 || collisionX3 || collisionX4;
+
+    const collisionX5 = tileMap[bloco1[1]][bloco1[0] - 1];
+    const collisionX6 = tileMap[bloco2[1]][bloco2[0] - 1];
+    const collisionX7 = tileMap[bloco3[1]][bloco3[0] - 1];
+    const collisionX8 = tileMap[bloco4[1]][bloco4[0] - 1];
+    const collisionXdir = collisionX5 || collisionX6 || collisionX7 || collisionX8;
+
+    addToTileMap();
+    
+    if (collisionXesq) return "Xesq";
+
+    if(collisionXdir) return "Xdir";
+
+    if (bloco1[1] >= 20 || bloco2[1] >= 20 || bloco3[1] >= 20 || bloco4[1] >= 20 || collisionY ) return "Y";
+
+    return false;
+}
+
+function removeFromTileMap() {
+    const bloco1 = vec4.transformMat4([], [0, 0, 0, 1], modelsList[piece]);
+    const bloco2 = vec4.transformMat4([], [0, 0, 0, 1], modelsList2[piece]);
+    const bloco3 = vec4.transformMat4([], [0, 0, 0, 1], modelsList3[piece]);
+    const bloco4 = vec4.transformMat4([], [0, 0, 0, 1], modelsList4[piece]);
+
+    tileMap[bloco1[1]][bloco1[0]] = false;
+    tileMap[bloco2[1]][bloco2[0]] = false;
+    tileMap[bloco3[1]][bloco3[0]] = false;
+    tileMap[bloco4[1]][bloco4[0]] = false;
 }
 
 function addToTileMap() {
@@ -395,12 +441,6 @@ function addToTileMap() {
     tileMap[bloco2[1]][bloco2[0]] = true;
     tileMap[bloco3[1]][bloco3[0]] = true;
     tileMap[bloco4[1]][bloco4[0]] = true;
-    console.log(bloco1[0]);
-    console.log(bloco2[0]);
-    console.log(bloco3[0]);
-    console.log(bloco4[0]);
-
-    printTileMap();
 }
 
 function printTileMap() {    
@@ -426,7 +466,6 @@ function novoModelo() {
     let posicao3 = matrizmodelo[1]
     let posicao4 = matrizmodelo[2]
 
-
     newmodel = mat4.fromTranslation([],[0,0,0]);
     newmodel2 = mat4.fromTranslation([],posicao2);
     newmodel3 = mat4.fromTranslation([],posicao3);
@@ -436,21 +475,13 @@ function novoModelo() {
     modelsList2[piece] = newmodel2;
     modelsList3[piece] = newmodel3;
     modelsList4[piece] = newmodel4;
-
-
 }
 
 function aleatorio() {
- //[1,0,0 ] [1,0,0] [0,1,0] [1,0,0]
- //[-1,0,0] [1,1,0] [0,2,0] [1,1,0]
- //[0,-1,0] [1,2,0] [0,3,0] [0,1,0]
-
- 
-
  let pos1 = [
     [2,0,0],
     [1,0,0],
-    [1,-1,0],
+    [1,1,0],
 ]
 
 let pos2 = [
@@ -483,9 +514,9 @@ function randomInt(min, max) {
 }
 
 function createMap() {
-    for(let i = 0; i < 24; i++) {
+    for(let i = 0; i < 30; i++) {
         tileMap[i] = [];
-        for(let j = 0; j < 15; j++) {
+        for(let j = 0; j < 20; j++) {
             tileMap[i][j] = false;
         }
     }
