@@ -5,6 +5,7 @@ window.addEventListener("keydown", moverModelo);
 
 
 
+
 // VARIÁVEIS GLOBAIS
 let canvas,         // área de desenho
     gl,             // API do WebGL
@@ -103,16 +104,20 @@ async function main(evt){
     let p1 = new Parte(modematrix[0], p0);
     let p2 = new Parte(modematrix[1], p1);
     let p3 = new Parte(modematrix[2], p2);
-    modelsList = [p0.model];
-    modelsList2 = [p1.model];
-    modelsList3 = [p2.model];
-    modelsList4 = [p3.model];
+    modelsList = [p0];
+    modelsList2 = [p1];
+    modelsList3 = [p2];
+    modelsList4 = [p3];
+    console.log(p0.model)
+    console.log(p1.model)
+    console.log(p2.model)
+    console.log(p3.model)
     ListOfModelsLists = [modelsList, modelsList2, modelsList3, modelsList4];
     
     
 
     for (let i = 0; i < 4; i++) {
-        gl.uniformMatrix4fv(modelUniform, false, ListOfModelsLists[i][piece]);
+        gl.uniformMatrix4fv(modelUniform, false, ListOfModelsLists[i][piece].model);
     }
 
     // 8.2 - View
@@ -143,7 +148,7 @@ function render () {
     // POINTS, LINES, LINE_STRIP, TRIANGLES 
     for (let i = 0; i <= piece; i++) {
         for(let j = 0; j < 4; j++) {
-            gl.uniformMatrix4fv(modelUniform, false, ListOfModelsLists[j][i]);
+            gl.uniformMatrix4fv(modelUniform, false, ListOfModelsLists[j][i].model);
             gl.drawArrays(gl.TRIANGLES, 0, data.points.length / 3);
         }
     }
@@ -335,7 +340,7 @@ function moverModelo(evt){
         removeFromTileMap();
         positionX -= 1;
         for(let i = 0; i < 4; i++){
-            ListOfModelsLists[i][piece] = mat4.translate([], ListOfModelsLists[i][piece], [-1, 0, 0]);
+            ListOfModelsLists[i][piece].model = mat4.translate([], ListOfModelsLists[i][piece].model, [-1, 0, 0]);
         }
         addToTileMap();  
     }
@@ -344,7 +349,7 @@ function moverModelo(evt){
         removeFromTileMap();
         positionX += 1;
         for(let i = 0; i < 4; i++){
-            ListOfModelsLists[i][piece] = mat4.translate([], ListOfModelsLists[i][piece], [1, 0, 0]);
+            ListOfModelsLists[i][piece].model = mat4.translate([], ListOfModelsLists[i][piece].model, [1, 0, 0]);
         }
         addToTileMap();
     }
@@ -353,14 +358,14 @@ function moverModelo(evt){
         removeFromTileMap();
         positionY += 1;
         for(let i = 0; i < 4; i++){
-            ListOfModelsLists[i][piece] = mat4.translate([],  ListOfModelsLists[i][piece], [0, 1, 0]);
+            ListOfModelsLists[i][piece].model = mat4.translate([],  ListOfModelsLists[i][piece].model, [0, 1, 0]);
         }
         addToTileMap();
     }
-    if (positionY <= 20  && evt.key === "q" && didCollided() !== "Y" ) {
+    if (evt.key === "q") {
         removeFromTileMap();
         
-        modelsList[piece] = mat4.rotateX([], modelsList[piece], Math.PI / 2);
+        modelsList[piece].model = mat4.rotateX([], modelsList[piece].model, Math.PI / 2);
         
 
         addToTileMap();
@@ -372,7 +377,7 @@ function gravidade() {
         removeFromTileMap();
 
         for (let i = 0; i < 4; i++) {
-            ListOfModelsLists[i][piece] = mat4.translate([], ListOfModelsLists[i][piece], [0, 1, 0]);
+            ListOfModelsLists[i][piece].model = mat4.translate([], ListOfModelsLists[i][piece].model, [0, 1, 0]);
         }
 
         addToTileMap();
@@ -426,10 +431,10 @@ function didCollided() {
 }
 
 function removeFromTileMap() {
-    const bloco1 = vec4.transformMat4([], [0, 0, 0, 1], modelsList[piece]);
-    const bloco2 = vec4.transformMat4([], [0, 0, 0, 1], modelsList2[piece]);
-    const bloco3 = vec4.transformMat4([], [0, 0, 0, 1], modelsList3[piece]);
-    const bloco4 = vec4.transformMat4([], [0, 0, 0, 1], modelsList4[piece]);
+    const bloco1 = vec4.transformMat4([], [0, 0, 0, 1], modelsList[piece].model);
+    const bloco2 = vec4.transformMat4([], [0, 0, 0, 1], modelsList2[piece].model);
+    const bloco3 = vec4.transformMat4([], [0, 0, 0, 1], modelsList3[piece].model);
+    const bloco4 = vec4.transformMat4([], [0, 0, 0, 1], modelsList4[piece].model);
 
     tileMap[bloco1[1]][bloco1[0]] = false;
     tileMap[bloco2[1]][bloco2[0]] = false;
@@ -438,10 +443,10 @@ function removeFromTileMap() {
 }
 
 function addToTileMap() {
-    const bloco1 = vec4.transformMat4([], [0, 0, 0, 1], modelsList[piece]);
-    const bloco2 = vec4.transformMat4([], [0, 0, 0, 1], modelsList2[piece]);
-    const bloco3 = vec4.transformMat4([], [0, 0, 0, 1], modelsList3[piece]);
-    const bloco4 = vec4.transformMat4([], [0, 0, 0, 1], modelsList4[piece]);
+    const bloco1 = vec4.transformMat4([], [0, 0, 0, 1], modelsList[piece].model);
+    const bloco2 = vec4.transformMat4([], [0, 0, 0, 1], modelsList2[piece].model);
+    const bloco3 = vec4.transformMat4([], [0, 0, 0, 1], modelsList3[piece].model);
+    const bloco4 = vec4.transformMat4([], [0, 0, 0, 1], modelsList4[piece].model);
 
     tileMap[bloco1[1]][bloco1[0]] = true;
     tileMap[bloco2[1]][bloco2[0]] = true;
@@ -473,10 +478,10 @@ function novoModelo() {
     newmodel3 = new Parte(matrizmodelo[1], newmodel2);
     newmodel4 =  new Parte(matrizmodelo[2], newmodel3);
 
-    modelsList[piece] = newmodel.model;
-    modelsList2[piece] = newmodel2.model;
-    modelsList3[piece] = newmodel3.model;
-    modelsList4[piece] = newmodel4.model;
+    modelsList[piece] = newmodel;
+    modelsList2[piece] = newmodel2;
+    modelsList3[piece] = newmodel3;
+    modelsList4[piece] = newmodel4;
    
 }
 
