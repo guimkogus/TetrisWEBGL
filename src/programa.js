@@ -96,23 +96,21 @@ async function main(evt){
     // 8.1 - Model
     modelUniform = gl.getUniformLocation(shaderProgram, "model");
     
-    /*
-    model.models()
-    */
-    modelmatrix = aleatorio();
-    model = mat4.fromTranslation([],[0,0,0]);
-    model2 = mat4.fromTranslation([],modelmatrix[0]);
-    model3 = mat4.fromTranslation([],modelmatrix[1]);
-    model4 = mat4.fromTranslation([],modelmatrix[2]);
-    modelsList = [model];
-    modelsList2 = [model2];
-    modelsList3 = [model3];
-    modelsList4 = [model4];
+
+    let modematrix = aleatorio()
+
+    let p0 = new Parte([0,0,0]);
+    p0.model = mat4.rotateZ([], p0.model, Math.PI / 2);
+    let p1 = new Parte(modematrix[0], p0);
+    let p2 = new Parte(modematrix[1], p0);
+    let p3 = new Parte(modematrix[2], p0);
+    modelsList = [p0];
+    modelsList2 = [p1];
+    modelsList3 = [p2];
+    modelsList4 = [p3];
     ListOfModelsLists = [modelsList, modelsList2, modelsList3, modelsList4];
     
-    /*for(let i = 0; i < 4; i++){
-        gl.uniformMatrix4fv(modelUniform, false, new Float32Array(model.listaDeModels[i]));
-    }*/
+    
 
     for (let i = 0; i < 4; i++) {
         gl.uniformMatrix4fv(modelUniform, false, new Float32Array(ListOfModelsLists[i][piece]));
@@ -251,10 +249,11 @@ function getData(){
         ...v[6], ...v[4], ...v[5]
 
     ];
-
+    
     let modelo = {
         "points": new Float32Array(points), 
-        "normais": new Float32Array(normais)
+        "normais": new Float32Array(normais),
+        
     };
 
     return modelo;
