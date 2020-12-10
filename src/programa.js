@@ -22,7 +22,7 @@ let canvas,         // área de desenho
     normalBuffer, // buffer alocado
     frameUniform,   // variável de frame nos shaders
     width,
-    height, 
+    height,
     aspect,
     projection,
     projectionUniform,
@@ -40,12 +40,13 @@ let canvas,         // área de desenho
     modelsList4,
     ListOfModelsLists,
     piece = 0,
+    rotacao = 0,
     positionX = 0,
     positionY = 0,
     dir = 0,
     tileMap = [];
 
-async function main(evt){
+async function main(evt) {
     createMap();
 
     // 1 - Criar uma área de desenho
@@ -96,11 +97,11 @@ async function main(evt){
     // 8 - Uniforms...
     // 8.1 - Model
     modelUniform = gl.getUniformLocation(shaderProgram, "model");
-    
+
 
     let modematrix = aleatorio()
 
-    let p0 = new Parte([0,0,0]);
+    let p0 = new Parte([0, 0, 0]);
     let p1 = new Parte(modematrix[0], p0);
     let p2 = new Parte(modematrix[1], p0);
     let p3 = new Parte(modematrix[2], p0);
@@ -108,28 +109,25 @@ async function main(evt){
     modelsList2 = [p1];
     modelsList3 = [p2];
     modelsList4 = [p3];
-   
+
     ListOfModelsLists = [modelsList, modelsList2, modelsList3, modelsList4];
-    console.log(ListOfModelsLists[0][piece])
-    console.log(ListOfModelsLists[1][piece])
-    console.log(ListOfModelsLists[2][piece])
-    console.log(ListOfModelsLists[3][piece])
     
 
-    
-    
+
+
+
 
     for (let i = 0; i < 4; i++) {
         gl.uniformMatrix4fv(modelUniform, false, ListOfModelsLists[i][piece].model);
     }
 
     // 8.2 - View
-    view = mat4.lookAt([], [0, 0, 30], [5.0, 10.0, 0.0], [0,-1,0]);
+    view = mat4.lookAt([], [0, 0, 30], [5.0, 10.0, 0.0], [0, -1, 0]);
     viewUniform = gl.getUniformLocation(shaderProgram, "view");
     gl.uniformMatrix4fv(viewUniform, false, new Float32Array(view));
 
     // 8.3 - Projection
-    projection = mat4.perspective([], 0.3*Math.PI, aspect, 0.01, 100);
+    projection = mat4.perspective([], 0.3 * Math.PI, aspect, 0.01, 100);
     projectionUniform = gl.getUniformLocation(shaderProgram, "projection");
     gl.uniformMatrix4fv(projectionUniform, false, new Float32Array(projection));
 
@@ -140,7 +138,7 @@ async function main(evt){
     render();
 }
 
-function render () {
+function render() {
     // 9.1 - Atualizar dados
     gl.uniform1f(frameUniform, frame);
 
@@ -150,7 +148,7 @@ function render () {
     // 9.3 - Desenhar
     // POINTS, LINES, LINE_STRIP, TRIANGLES 
     for (let i = 0; i <= piece; i++) {
-        for(let j = 0; j < 4; j++) {
+        for (let j = 0; j < 4; j++) {
             gl.uniformMatrix4fv(modelUniform, false, ListOfModelsLists[j][i].getModel());
             gl.drawArrays(gl.TRIANGLES, 0, data.points.length / 3);
         }
@@ -162,21 +160,21 @@ function render () {
     requestAnimationFrame(render);
 }
 
-function getData(){
+function getData() {
 
     let n = [
         // frente
-        [0,0,-1],
+        [0, 0, -1],
         // topo
-        [0,-1,0],
+        [0, -1, 0],
         // esquerda
-        [-1,0,0],
+        [-1, 0, 0],
         // direita
-        [1,0,0],
+        [1, 0, 0],
         // baixo
-        [0,1,0],
+        [0, 1, 0],
         // fundo
-        [0,0,1]
+        [0, 0, 1]
     ];
 
     let normais = [
@@ -201,21 +199,21 @@ function getData(){
 
     let v = [
         // 0: A - EQ TP FR
-        [-1,-1,-1],
+        [-1, -1, -1],
         // 1: B - DR TP FR
-        [0,-1,-1],
+        [0, -1, -1],
         // 2: C - DR BX FR
-        [0,0,-1],
+        [0, 0, -1],
         // 3: D - EQ BX FR
-        [-1,0,-1],
+        [-1, 0, -1],
         // 4: E - EQ TP TZ
-        [-1,-1,0],
+        [-1, -1, 0],
         // 5: F - DR TP TZ
-        [0,-1,0],
+        [0, -1, 0],
         // 6: G - EQ BX TZ
-        [-1,0,0],
+        [-1, 0, 0],
         // 7: H - DR BX TZ
-        [0,0,0]
+        [0, 0, 0]
     ];
 
     let points = [
@@ -224,7 +222,7 @@ function getData(){
         ...v[0], ...v[3], ...v[2],
         // cba
         ...v[2], ...v[1], ...v[0],
-       
+
         // topo
         // abe
         ...v[0], ...v[1], ...v[4],
@@ -256,35 +254,35 @@ function getData(){
         ...v[6], ...v[4], ...v[5]
 
     ];
-    
+
     let modelo = {
-        "points": new Float32Array(points), 
+        "points": new Float32Array(points),
         "normais": new Float32Array(normais),
-        
+
     };
 
     return modelo;
 }
 
-function createCanvas(){
+function createCanvas() {
     let canvas = document.createElement("canvas");
     canvas.style.background = "hsl(0deg, 0%, 80%)";
     document.body.appendChild(canvas);
     return canvas;
 }
 
-function loadGL(){
+function loadGL() {
     let gl = canvas.getContext("webgl");
     gl.enable(gl.DEPTH_TEST);
     return gl;
 }
 
-function compile(source, type){
+function compile(source, type) {
     let shader = gl.createShader(type);
     let typeInfo = type === gl.VERTEX_SHADER ? "VERTEX" : "FRAGMENT";
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
-    if(!gl.getShaderParameter(shader, gl.COMPILE_STATUS)){
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
         let reason = gl.getShaderInfoLog(shader);
         console.error("ERRO NA COMPILAÇÃO ::", type, reason);
         return null;
@@ -293,12 +291,12 @@ function compile(source, type){
     return shader;
 }
 
-function link(vertexShader, fragmentShader){
+function link(vertexShader, fragmentShader) {
     let program = gl.createProgram();
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
     gl.linkProgram(program);
-    if(!gl.getProgramParameter(program, gl.LINK_STATUS)){
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
         console.error("ERRO NO LINK");
         return null;
     }
@@ -306,109 +304,165 @@ function link(vertexShader, fragmentShader){
     return program;
 }
 
-function resize(){
+function resize() {
     width = window.innerWidth;
     height = window.innerHeight;
     aspect = width / height;
-    if(canvas){
+    if (canvas) {
         canvas.setAttribute("width", width);
         canvas.setAttribute("height", height);
     }
-    if(gl) 
+    if (gl)
         gl.viewport(0, 0, canvas.width, canvas.height);
 
-    if(projectionUniform) {
-        projection = mat4.perspective([], 0.3*Math.PI, aspect, 0.01, 100);
+    if (projectionUniform) {
+        projection = mat4.perspective([], 0.3 * Math.PI, aspect, 0.01, 100);
         gl.uniformMatrix4fv(projectionUniform, false, new Float32Array(projection));
     }
 }
 
-function moverCamera(evt){
+function moverCamera(evt) {
     const DES = 3;
     /// -1 < x < 1
-    let x = (evt.x / window.innerWidth)*2 - 1;
-    let y = (evt.y / window.innerHeight)*-2 + 1;
+    let x = (evt.x / window.innerWidth) * 2 - 1;
+    let y = (evt.y / window.innerHeight) * -2 + 1;
 
     let dx = x * DES;
     let dy = y * DES;
 
-    if(view){
-        view = mat4.lookAt([], [dx, dy, 30], [5.0, 10.0, 0.0], [0,-1,0]);
+    if (view) {
+        view = mat4.lookAt([], [dx, dy, 30], [5.0, 10.0, 0.0], [0, -1, 0]);
         gl.uniformMatrix4fv(viewUniform, false, new Float32Array(view));
     }
 }
 
-function moverModelo(evt){    
-    if ( positionX > 0 && evt.key === "d" && didCollided() !== "Xdir" ) {
+function moverModelo(evt) {
+    if (positionX > 0 && evt.key === "d" && didCollided() !== "Xdir") {
         removeFromTileMap();
         positionX -= 1;
-        
-            ListOfModelsLists[0][piece].model = mat4.translate([], ListOfModelsLists[0][piece].model, [-1, 0, 0]);
-        
-        addToTileMap();  
-    }
-    
-    if ( positionX < 10 && evt.key === "a" && didCollided() !== "Xesq" ) {
-        removeFromTileMap();
-        positionX += 1;
-        
-            ListOfModelsLists[0][piece].model = mat4.translate([], ListOfModelsLists[0][piece].model, [1, 0, 0]);
-        
+
+        if (data) {
+            let parte1 = ListOfModelsLists[0][piece];
+            if (rotacao == 0) {
+                parte1.model = mat4.translate([], parte1.model, [-1, 0, 0]);
+            }
+            if (rotacao == 1) {
+                parte1.model = mat4.translate([], parte1.model, [0, 1, 0]);
+            }
+            if (rotacao == 2) {
+                parte1.model = mat4.translate([], parte1.model, [1, 0, 0]);
+            }
+            if (rotacao == 3) {
+                parte1.model = mat4.translate([], parte1.model, [0, -1, 0]);
+            }
+        }
+
         addToTileMap();
     }
 
-    if (positionY <= 20  && evt.key === "s" && didCollided() !== "Y" ) {
+    if (positionX < 10 && evt.key === "a" && didCollided() !== "Xesq") {
+        removeFromTileMap();
+        positionX += 1;
+        if (data) {
+            let parte1 = ListOfModelsLists[0][piece];
+            if (rotacao == 0) {
+                parte1.model = mat4.translate([], parte1.model, [1, 0, 0]);
+            }
+            if (rotacao == 1) {
+                parte1.model = mat4.translate([], parte1.model, [0, -1, 0]);
+            }
+            if (rotacao == 2) {
+                parte1.model = mat4.translate([], parte1.model, [-1, 0, 0]);
+            }
+            if (rotacao == 3) {
+                parte1.model = mat4.translate([], parte1.model, [0, 1, 0]);
+            }
+        }
+        addToTileMap();
+    }
+
+    if (positionY <= 20 && evt.key === "s" && didCollided() !== "Y") {
         removeFromTileMap();
         positionY += 1;
-        
-            ListOfModelsLists[0][piece].model = mat4.translate([],  ListOfModelsLists[0][piece].model, [0, 1, 0]);
-        
+        if (data) {
+            let parte1 = ListOfModelsLists[0][piece];
+            if (rotacao == 0) {
+                parte1.model = mat4.translate([], parte1.model, [0, 1, 0]);
+            }
+            if (rotacao == 1) {
+                parte1.model = mat4.translate([], parte1.model, [1, 0, 0]);
+            }
+            if (rotacao == 2) {
+                parte1.model = mat4.translate([], parte1.model, [0, -1, 0]);
+            }
+            if (rotacao == 3) {
+                parte1.model = mat4.translate([], parte1.model, [-1, 0, 0]);
+            }
+        }
         addToTileMap();
     }
     if (evt.key === "q") {
         removeFromTileMap();
-        if(data){
+        
+        if (data) {
             let parte1 = ListOfModelsLists[0][piece];
-            parte1.model = mat4.rotateZ([],  parte1.model, Math.PI / 2);
             
+            parte1.model = mat4.rotateZ([], parte1.model, Math.PI / 2);
+            console.log(parte1.model)
+            if(rotacao < 3)
+            rotacao++;
+            else{
+            rotacao = 0;
+            }
+            console.log(rotacao);
         }
-        
-        
+
+
 
         addToTileMap();
     }
 }
 
-function gravidade() {  
-    if(frame % 60 === 0 && didCollided() !== "Y" ) {
+function gravidade() {
+    if (frame % 60 === 0 && didCollided() !== "Y") {
         removeFromTileMap();
-
-        
-            ListOfModelsLists[0][piece].model = mat4.translate([], ListOfModelsLists[0][piece].model, [0, 1, 0]);
-        
-
+        if (data) {
+            let parte1 = ListOfModelsLists[0][piece];
+            if (rotacao == 0) {
+                parte1.model = mat4.translate([], parte1.model, [0, 1, 0]);
+            }
+            if (rotacao == 1) {
+                parte1.model = mat4.translate([], parte1.model, [1, 0, 0]);
+            }
+            if (rotacao == 2) {
+                parte1.model = mat4.translate([], parte1.model, [0, -1, 0]);
+            }
+            if (rotacao == 3) {
+                parte1.model = mat4.translate([], parte1.model, [-1, 0, 0]);
+            }
+        }
         addToTileMap();
         positionY += 1;
     }
 
-    if(didCollided() === "Y") {
+    if (didCollided() === "Y") {
         printTileMap();
+        console.log("colidiu");
         positionY = 0;
         positionX = 0;
         piece++;
         novoModelo();
+        rotacao = 0;
     }
 }
 
 function didCollided() {
     removeFromTileMap();
 
-    let newmodel = mat4.fromTranslation([],[0,0,0]);
-    const bloco1 = vec4.transformMat4([], [0, 0, 0, 1], modelsList[piece].model);
-    const bloco0 = vec4.transformMat4([], [0, 0, 0, 1], newmodel);
-    const bloco2 = vec4.transformMat4([], [0, 0, 0, 1], modelsList2[piece].model);
-    const bloco3 = vec4.transformMat4([], [0, 0, 0, 1], modelsList3[piece].model);
-    const bloco4 = vec4.transformMat4([], [0, 0, 0, 1], modelsList4[piece].model);
+    const bloco1 = vec4.transformMat4([], [0, 0, 0, 1], modelsList[piece].getModel());
+    const bloco2 = vec4.transformMat4([], [0, 0, 0, 1], modelsList2[piece].getModel());
+    const bloco3 = vec4.transformMat4([], [0, 0, 0, 1], modelsList3[piece].getModel());
+    const bloco4 = vec4.transformMat4([], [0, 0, 0, 1], modelsList4[piece].getModel());
 
     const collisionY1 = tileMap[bloco1[1] + 1][bloco1[0]];
     const collisionY2 = tileMap[bloco2[1] + 1][bloco2[0]];
@@ -429,21 +483,21 @@ function didCollided() {
     const collisionXdir = collisionX5 || collisionX6 || collisionX7 || collisionX8;
 
     addToTileMap();
-    
+
     if (collisionXesq) return "Xesq";
 
-    if(collisionXdir) return "Xdir";
+    if (collisionXdir) return "Xdir";
 
-    if (bloco1[1] >= 20 || bloco2[1] >= 20 || bloco3[1] >= 20 || bloco4[1] >= 20 || collisionY ) return "Y";
+    if (bloco1[1] >= 20 || bloco2[1] >= 20 || bloco3[1] >= 20 || bloco4[1] >= 20 || collisionY) return "Y";
 
     return false;
 }
 
 function removeFromTileMap() {
-    const bloco1 = vec4.transformMat4([], [0, 0, 0, 1], modelsList[piece].model);
-    const bloco2 = vec4.transformMat4([], [0, 0, 0, 1], modelsList2[piece].model);
-    const bloco3 = vec4.transformMat4([], [0, 0, 0, 1], modelsList3[piece].model);
-    const bloco4 = vec4.transformMat4([], [0, 0, 0, 1], modelsList4[piece].model);
+    const bloco1 = vec4.transformMat4([], [0, 0, 0, 1], modelsList[piece].getModel());
+    const bloco2 = vec4.transformMat4([], [0, 0, 0, 1], modelsList2[piece].getModel());
+    const bloco3 = vec4.transformMat4([], [0, 0, 0, 1], modelsList3[piece].getModel());
+    const bloco4 = vec4.transformMat4([], [0, 0, 0, 1], modelsList4[piece].getModel());
 
     tileMap[bloco1[1]][bloco1[0]] = false;
     tileMap[bloco2[1]][bloco2[0]] = false;
@@ -452,10 +506,10 @@ function removeFromTileMap() {
 }
 
 function addToTileMap() {
-    const bloco1 = vec4.transformMat4([], [0, 0, 0, 1], modelsList[piece].model);
-    const bloco2 = vec4.transformMat4([], [0, 0, 0, 1], modelsList2[piece].model);
-    const bloco3 = vec4.transformMat4([], [0, 0, 0, 1], modelsList3[piece].model);
-    const bloco4 = vec4.transformMat4([], [0, 0, 0, 1], modelsList4[piece].model);
+    const bloco1 = vec4.transformMat4([], [0, 0, 0, 1], modelsList[piece].getModel());
+    const bloco2 = vec4.transformMat4([], [0, 0, 0, 1], modelsList2[piece].getModel());
+    const bloco3 = vec4.transformMat4([], [0, 0, 0, 1], modelsList3[piece].getModel());
+    const bloco4 = vec4.transformMat4([], [0, 0, 0, 1], modelsList4[piece].getModel());
 
     tileMap[bloco1[1]][bloco1[0]] = true;
     tileMap[bloco2[1]][bloco2[0]] = true;
@@ -463,10 +517,10 @@ function addToTileMap() {
     tileMap[bloco4[1]][bloco4[0]] = true;
 }
 
-function printTileMap() {    
+function printTileMap() {
     let line = "";
-    for(let i = 0; i < tileMap.length; i++) {
-        for(let j = tileMap[i].length - 1; j >= 0 ; j--) {
+    for (let i = 0; i < tileMap.length; i++) {
+        for (let j = tileMap[i].length - 1; j >= 0; j--) {
             line += tileMap[i][j] ? 1 : 0;
         }
         line += "\n";
@@ -481,59 +535,59 @@ function novoModelo() {
         newmodel4;
 
     let matrizmodelo = aleatorio();
-    
-    newmodel = new Parte([0,0,0]);
+
+    newmodel = new Parte([0, 0, 0]);
     newmodel2 = new Parte(matrizmodelo[0], newmodel);
-    newmodel3 = new Parte(matrizmodelo[1], newmodel2);
-    newmodel4 =  new Parte(matrizmodelo[2], newmodel3);
+    newmodel3 = new Parte(matrizmodelo[1], newmodel);
+    newmodel4 = new Parte(matrizmodelo[2], newmodel);
 
     modelsList[piece] = newmodel;
     modelsList2[piece] = newmodel2;
     modelsList3[piece] = newmodel3;
     modelsList4[piece] = newmodel4;
-   
+
 }
 
 function aleatorio() {
- let pos1 = [
-    [2,0,0],
-    [1,0,0],
-    [1,1,0],
-]
+    let pos1 = [
+        [2, 0, 0],
+        [1, 0, 0],
+        [1, 1, 0],
+    ]
 
-let pos2 = [
-    [1,0,0],
-    [1,1,0],
-    [1,2,0],
-]
+    let pos2 = [
+        [1, 0, 0],
+        [1, 1, 0],
+        [1, 2, 0],
+    ]
 
-let pos3 = [
-    [0,1,0],
-    [0,2,0],
-    [0,3,0],
-]
+    let pos3 = [
+        [0, 1, 0],
+        [0, 2, 0],
+        [0, 3, 0],
+    ]
 
-let pos4 = [
-    [1,0,0],
-    [1,1,0],
-    [0,1,0],
-]
+    let pos4 = [
+        [1, 0, 0],
+        [1, 1, 0],
+        [0, 1, 0],
+    ]
 
-let listadepos = [pos1,pos2,pos3,pos4] 
+    let listadepos = [pos1, pos2, pos3, pos4]
 
-let indice = randomInt(0,(listadepos.length));
+    let indice = randomInt(0, (listadepos.length));
 
-return listadepos[indice];
+    return listadepos[indice];
 }
 
 function randomInt(min, max) {
-	return min + Math.floor((max - min) * Math.random());
+    return min + Math.floor((max - min) * Math.random());
 }
 
 function createMap() {
-    for(let i = 0; i < 30; i++) {
+    for (let i = 0; i < 30; i++) {
         tileMap[i] = [];
-        for(let j = 0; j < 20; j++) {
+        for (let j = 0; j < 20; j++) {
             tileMap[i][j] = false;
         }
     }
