@@ -102,17 +102,20 @@ async function main(evt){
 
     let p0 = new Parte([0,0,0]);
     let p1 = new Parte(modematrix[0], p0);
-    let p2 = new Parte(modematrix[1], p1);
-    let p3 = new Parte(modematrix[2], p2);
+    let p2 = new Parte(modematrix[1], p0);
+    let p3 = new Parte(modematrix[2], p0);
     modelsList = [p0];
     modelsList2 = [p1];
     modelsList3 = [p2];
     modelsList4 = [p3];
-    console.log(p0.model)
-    console.log(p1.model)
-    console.log(p2.model)
-    console.log(p3.model)
+   
     ListOfModelsLists = [modelsList, modelsList2, modelsList3, modelsList4];
+    console.log(ListOfModelsLists[0][piece])
+    console.log(ListOfModelsLists[1][piece])
+    console.log(ListOfModelsLists[2][piece])
+    console.log(ListOfModelsLists[3][piece])
+    
+
     
     
 
@@ -148,7 +151,7 @@ function render () {
     // POINTS, LINES, LINE_STRIP, TRIANGLES 
     for (let i = 0; i <= piece; i++) {
         for(let j = 0; j < 4; j++) {
-            gl.uniformMatrix4fv(modelUniform, false, ListOfModelsLists[j][i].model);
+            gl.uniformMatrix4fv(modelUniform, false, ListOfModelsLists[j][i].getModel());
             gl.drawArrays(gl.TRIANGLES, 0, data.points.length / 3);
         }
     }
@@ -339,33 +342,37 @@ function moverModelo(evt){
     if ( positionX > 0 && evt.key === "d" && didCollided() !== "Xdir" ) {
         removeFromTileMap();
         positionX -= 1;
-        for(let i = 0; i < 4; i++){
-            ListOfModelsLists[i][piece].model = mat4.translate([], ListOfModelsLists[i][piece].model, [-1, 0, 0]);
-        }
+        
+            ListOfModelsLists[0][piece].model = mat4.translate([], ListOfModelsLists[0][piece].model, [-1, 0, 0]);
+        
         addToTileMap();  
     }
     
     if ( positionX < 10 && evt.key === "a" && didCollided() !== "Xesq" ) {
         removeFromTileMap();
         positionX += 1;
-        for(let i = 0; i < 4; i++){
-            ListOfModelsLists[i][piece].model = mat4.translate([], ListOfModelsLists[i][piece].model, [1, 0, 0]);
-        }
+        
+            ListOfModelsLists[0][piece].model = mat4.translate([], ListOfModelsLists[0][piece].model, [1, 0, 0]);
+        
         addToTileMap();
     }
 
     if (positionY <= 20  && evt.key === "s" && didCollided() !== "Y" ) {
         removeFromTileMap();
         positionY += 1;
-        for(let i = 0; i < 4; i++){
-            ListOfModelsLists[i][piece].model = mat4.translate([],  ListOfModelsLists[i][piece].model, [0, 1, 0]);
-        }
+        
+            ListOfModelsLists[0][piece].model = mat4.translate([],  ListOfModelsLists[0][piece].model, [0, 1, 0]);
+        
         addToTileMap();
     }
     if (evt.key === "q") {
         removeFromTileMap();
+        if(data){
+            let parte1 = ListOfModelsLists[0][piece];
+            parte1.model = mat4.rotateZ([],  parte1.model, Math.PI / 2);
+            
+        }
         
-        modelsList[piece].model = mat4.rotateX([], modelsList[piece].model, Math.PI / 2);
         
 
         addToTileMap();
@@ -376,9 +383,9 @@ function gravidade() {
     if(frame % 60 === 0 && didCollided() !== "Y" ) {
         removeFromTileMap();
 
-        for (let i = 0; i < 4; i++) {
-            ListOfModelsLists[i][piece].model = mat4.translate([], ListOfModelsLists[i][piece].model, [0, 1, 0]);
-        }
+        
+            ListOfModelsLists[0][piece].model = mat4.translate([], ListOfModelsLists[0][piece].model, [0, 1, 0]);
+        
 
         addToTileMap();
         positionY += 1;
@@ -396,10 +403,12 @@ function gravidade() {
 function didCollided() {
     removeFromTileMap();
 
-    const bloco1 = vec4.transformMat4([], [0, 0, 0, 1], modelsList[piece]);
-    const bloco2 = vec4.transformMat4([], [0, 0, 0, 1], modelsList2[piece]);
-    const bloco3 = vec4.transformMat4([], [0, 0, 0, 1], modelsList3[piece]);
-    const bloco4 = vec4.transformMat4([], [0, 0, 0, 1], modelsList4[piece]);
+    let newmodel = mat4.fromTranslation([],[0,0,0]);
+    const bloco1 = vec4.transformMat4([], [0, 0, 0, 1], modelsList[piece].model);
+    const bloco0 = vec4.transformMat4([], [0, 0, 0, 1], newmodel);
+    const bloco2 = vec4.transformMat4([], [0, 0, 0, 1], modelsList2[piece].model);
+    const bloco3 = vec4.transformMat4([], [0, 0, 0, 1], modelsList3[piece].model);
+    const bloco4 = vec4.transformMat4([], [0, 0, 0, 1], modelsList4[piece].model);
 
     const collisionY1 = tileMap[bloco1[1] + 1][bloco1[0]];
     const collisionY2 = tileMap[bloco2[1] + 1][bloco2[0]];
