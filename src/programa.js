@@ -100,20 +100,19 @@ async function main(evt){
     let modematrix = aleatorio()
 
     let p0 = new Parte([0,0,0]);
-    p0.model = mat4.rotateZ([], p0.model, Math.PI / 2);
     let p1 = new Parte(modematrix[0], p0);
-    let p2 = new Parte(modematrix[1], p0);
-    let p3 = new Parte(modematrix[2], p0);
-    modelsList = [p0];
-    modelsList2 = [p1];
-    modelsList3 = [p2];
-    modelsList4 = [p3];
+    let p2 = new Parte(modematrix[1], p1);
+    let p3 = new Parte(modematrix[2], p2);
+    modelsList = [p0.model];
+    modelsList2 = [p1.model];
+    modelsList3 = [p2.model];
+    modelsList4 = [p3.model];
     ListOfModelsLists = [modelsList, modelsList2, modelsList3, modelsList4];
     
     
 
     for (let i = 0; i < 4; i++) {
-        gl.uniformMatrix4fv(modelUniform, false, new Float32Array(ListOfModelsLists[i][piece]));
+        gl.uniformMatrix4fv(modelUniform, false, ListOfModelsLists[i][piece]);
     }
 
     // 8.2 - View
@@ -144,7 +143,7 @@ function render () {
     // POINTS, LINES, LINE_STRIP, TRIANGLES 
     for (let i = 0; i <= piece; i++) {
         for(let j = 0; j < 4; j++) {
-            gl.uniformMatrix4fv(modelUniform, false, new Float32Array(ListOfModelsLists[j][i]));
+            gl.uniformMatrix4fv(modelUniform, false, ListOfModelsLists[j][i]);
             gl.drawArrays(gl.TRIANGLES, 0, data.points.length / 3);
         }
     }
@@ -358,6 +357,14 @@ function moverModelo(evt){
         }
         addToTileMap();
     }
+    if (positionY <= 20  && evt.key === "q" && didCollided() !== "Y" ) {
+        removeFromTileMap();
+        
+        modelsList[piece] = mat4.rotateX([], modelsList[piece], Math.PI / 2);
+        
+
+        addToTileMap();
+    }
 }
 
 function gravidade() {  
@@ -461,19 +468,16 @@ function novoModelo() {
 
     let matrizmodelo = aleatorio();
     
-    let posicao2 = matrizmodelo[0];
-    let posicao3 = matrizmodelo[1]
-    let posicao4 = matrizmodelo[2]
+    newmodel = new Parte([0,0,0]);
+    newmodel2 = new Parte(matrizmodelo[0], newmodel);
+    newmodel3 = new Parte(matrizmodelo[1], newmodel2);
+    newmodel4 =  new Parte(matrizmodelo[2], newmodel3);
 
-    newmodel = mat4.fromTranslation([],[0,0,0]);
-    newmodel2 = mat4.fromTranslation([],posicao2);
-    newmodel3 = mat4.fromTranslation([],posicao3);
-    newmodel4 = mat4.fromTranslation([],posicao4);
-
-    modelsList[piece] = newmodel;
-    modelsList2[piece] = newmodel2;
-    modelsList3[piece] = newmodel3;
-    modelsList4[piece] = newmodel4;
+    modelsList[piece] = newmodel.model;
+    modelsList2[piece] = newmodel2.model;
+    modelsList3[piece] = newmodel3.model;
+    modelsList4[piece] = newmodel4.model;
+   
 }
 
 function aleatorio() {
